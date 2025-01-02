@@ -12,9 +12,11 @@ return {
       local fg_dark = "#B4D0E9"
       local fg_gutter = "#627E97"
       local border = "#547998"
+      local transparent = true -- set to true if you would like to enable transparency
 
       require("tokyonight").setup({
         style = "night",
+        transparent = transparent,
         on_colors = function(colors)
           colors.bg = bg
           colors.bg_dark = bg_dark

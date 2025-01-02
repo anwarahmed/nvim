@@ -6,7 +6,7 @@ return {
 
     conform.setup({
       formatters_by_ft = {
-        csharp = { "csharpier" },
+        cs = { "csharpier" },
         javascript = { "prettier" },
         typescript = { "prettier" },
         javascriptreact = { "prettier" },

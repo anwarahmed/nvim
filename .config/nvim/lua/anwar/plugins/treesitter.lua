@@ -22,6 +22,7 @@ return {
       },
       -- ensure these language parsers are installed
       ensure_installed = {
+        "c_sharp",
         "json",
         "javascript",
         "typescript",
