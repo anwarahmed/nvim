@@ -12,7 +12,7 @@ return {
       local fg_dark = "#B4D0E9"
       local fg_gutter = "#627E97"
       local border = "#547998"
-      local transparent = true -- set to true if you would like to enable transparency
+      local transparent = false -- set to true if you would like to enable transparency
 
       require("tokyonight").setup({
         style = "night",
