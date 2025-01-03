@@ -1,7 +1,11 @@
 # neovim
+
 My NeoVim setup
 
+Copy the folder `nvim` to `~/.config/`
+
 ## Homebrew installs
+
 ```shell
 brew install nvm # setup .nvmrc with "lts/*"
 brew install neovim
