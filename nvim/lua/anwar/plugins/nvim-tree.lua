@@ -15,6 +15,7 @@ return {
       },
       -- change folder arrow icons
       renderer = {
+        root_folder_label = ":t", -- tail of the folder path
         indent_markers = {
           enable = true,
         },
