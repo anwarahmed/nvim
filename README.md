@@ -2,9 +2,16 @@
 
 My NeoVim setup
 
-Copy the folder `nvim` to `~/.config/`
+Copy the contents of this repository to `~/.config/nvim`.
+The following files can be ignored:
 
-## Homebrew installs
+- README.md
+- .git
+- .gitignore
+
+## Homebrew
+
+Install the following packages with Homebrew:
 
 ```shell
 brew install nvm # setup .nvmrc with "lts/*"
