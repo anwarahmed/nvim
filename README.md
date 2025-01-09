@@ -1,13 +1,15 @@
 # neovim
 
+https://neovim.io/
+
 My NeoVim setup
 
 Copy the contents of this repository to `~/.config/nvim`.
 The following files can be ignored:
 
-- README.md
-- .git
-- .gitignore
+- `README.md`
+- `.git`
+- `.gitignore`
 
 ## Homebrew
 
