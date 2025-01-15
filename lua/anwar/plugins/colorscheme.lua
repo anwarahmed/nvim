@@ -12,11 +12,10 @@ return {
   --     local fg_dark = "#B4D0E9"
   --     local fg_gutter = "#627E97"
   --     local border = "#547998"
-  --     local transparent = true -- set to true if you would like to enable transparency
   --
   --     require("tokyonight").setup({
   --       style = "night",
-  --       transparent = transparent,
+  --       -- transparent = true,
   --       on_colors = function(colors)
   --         colors.bg = bg
   --         colors.bg_dark = bg_dark
@@ -39,17 +38,60 @@ return {
   --     vim.cmd([[colorscheme tokyonight]])
   --   end,
   -- },
+
+  -- { -- adwaita
+  --   "Mofiqul/adwaita.nvim",
+  --   lazy = false,
+  --   priority = 1000,
+  --
+  --   -- configure and set on startup
+  --   config = function()
+  --     vim.g.adwaita_darker = true -- for darker version
+  --     -- vim.g.adwaita_disable_cursorline = true -- to disable cursorline
+  --     vim.g.adwaita_transparent = true -- makes the background transparent
+  --     vim.cmd("colorscheme adwaita")
+  --   end,
+  -- },
+
+  -- { -- catppuccin
+  --   "catppuccin/nvim",
+  --   name = "catppuccin",
+  --   priority = 1000,
+  --   config = function()
+  --     require("catppuccin").setup({
+  --       transparent_background = true, -- set to true to disable setting the background color.
+  --     })
+  --
+  --     -- load the colorscheme here
+  --     vim.cmd([[colorscheme catppuccin]])
+  --   end,
+  -- },
+
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
-    priority = 1000,
+    "projekt0n/github-nvim-theme",
+    name = "github-theme",
+    lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
-      require("catppuccin").setup({
-        transparent_background = true, -- set to true to disable setting the background color.
+      require("github-theme").setup({
+        options = {
+          transparent = true, -- Disable setting bg (make neovim's background transparent)
+          styles = { -- Style to be applied to different syntax groups
+            comments = "italic", -- Value is any valid attr-list value `:help attr-list`
+            functions = "bold",
+            keywords = "bold",
+            variables = "NONE",
+            conditionals = "NONE",
+            constants = "NONE",
+            numbers = "NONE",
+            operators = "NONE",
+            strings = "NONE",
+            types = "bold",
+          },
+        },
       })
 
-      -- load the colorscheme here
-      vim.cmd([[colorscheme catppuccin]])
+      vim.cmd("colorscheme github_dark")
     end,
   },
 }
