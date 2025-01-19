@@ -47,4 +47,4 @@ opt.swapfile = false
 -- opt.guicursor = "" -- fat cursor
 
 -- scroll-off
-opt.scrolloff = 10 -- start scrolling at the 10th line from the top or bottom of the file
+opt.scrolloff = 20 -- start scrolling at the specified line number from the top or bottom of the file
