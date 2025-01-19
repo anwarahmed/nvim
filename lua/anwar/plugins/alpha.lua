@@ -72,6 +72,7 @@ return {
       ["i"] = { fg = "#33994d", bg = "#39ac56", ctermfg = 23, ctermbg = 29 },
       ["j"] = { fg = "#53C670", bg = "#33994d", ctermfg = 35, ctermbg = 23 },
       ["k"] = { fg = "#30A572", ctermfg = 36 },
+      ["l"] = { fg = "#ec2160", ctermfg = 36, bold = true },
     }, {
       [[  kkkka       gggg  ]],
       [[  kkkkaa      ggggg ]],
@@ -87,7 +88,7 @@ return {
       [[ bbbbb      aaaaajh ]],
       [[  bbbb       aaaaa  ]],
       [[                    ]],
-      [[  h  h  h  h  hh h  ]],
+      [[  l  l  l  l  ll l  ]],
       [[  a  a  a  b  b  b  ]],
     }))
 
