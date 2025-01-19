@@ -52,7 +52,11 @@ return {
     -- configure lualine with modified theme
     lualine.setup({
       options = {
-        theme = "github_dark", -- my_lualine_theme,
+        theme = "onedark", -- my_lualine_theme,
+
+        -- custom separators
+        component_separators = "╱", -- default is { left = "", right = "" },
+        section_separators = { left = "◤", right = "◢" }, -- default is { left = "", right = "" },
       },
       sections = {
         lualine_x = {
