@@ -55,21 +55,21 @@ return {
         theme = "onedark", -- my_lualine_theme,
 
         -- custom separators
-        component_separators = "╱", -- default is { left = "", right = "" },
-        section_separators = { left = "◤", right = "◢" }, -- default is { left = "", right = "" },
+        component_separators = "│", -- previously used "╱", -- default is { left = "", right = "" },
+        section_separators = "", -- previoiusly used { left = "◤", right = "◢" }, -- default is { left = "", right = "" },
       },
-      sections = {
-        lualine_x = {
-          {
-            lazy_status.updates,
-            cond = lazy_status.has_updates,
-            color = { fg = "#ff9e64" },
-          },
-          { "encoding" },
-          { "fileformat" },
-          { "filetype" },
-        },
-      },
+      -- sections = {
+      --   lualine_x = {
+      --     {
+      --       lazy_status.updates,
+      --       cond = lazy_status.has_updates,
+      --       color = { fg = "#ff9e64" },
+      --     },
+      --     { "encoding" },
+      --     { "fileformat" },
+      --     { "filetype" },
+      --   },
+      -- },
     })
   end,
 }
