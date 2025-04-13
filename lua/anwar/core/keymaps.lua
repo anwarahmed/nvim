@@ -33,5 +33,5 @@ keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer
 
 keymap.set("n", "<leader>th", "<cmd>tabm -<CR>", { desc = "Move tab left" }) -- move current tab to the left
 keymap.set("n", "<leader>tl", "<cmd>tabm +<CR>", { desc = "Move tab right" }) -- move current tab to the right
-keymap.set("n", "<leader>tj", "<cmd>tabm 0<CR>", { desc = "Move tab to first" }) -- move current tab to the first
-keymap.set("n", "<leader>tk", "<cmd>tabm $<CR>", { desc = "Move tab to last" }) -- move current tab to the last
+keymap.set("n", "<leader>t0", "<cmd>tabm 0<CR>", { desc = "Move tab to first" }) -- move current tab to the first
+keymap.set("n", "<leader>t$", "<cmd>tabm $<CR>", { desc = "Move tab to last" }) -- move current tab to the last
