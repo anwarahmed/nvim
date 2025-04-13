@@ -128,6 +128,7 @@ return {
                     "finally_clause",
                     "property_signature",
                     "dictionary",
+                    "dict",
                     "assignment",
                     "expression_statement",
                     "compound_statement",

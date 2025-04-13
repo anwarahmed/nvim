@@ -1,6 +1,10 @@
 vim.cmd("let g:netrw_liststyle = 3")
 
 local opt = vim.opt -- for conciseness
+local g = vim.g -- global variables
+
+-- global options
+g.have_nerd_font = true -- set to true if you have nerd font installed
 
 -- line numbers
 opt.relativenumber = true -- show relative line numbers
