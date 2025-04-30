@@ -8,7 +8,7 @@ return {
       border = "rounded", -- Border style ('none', 'single', 'double', 'rounded', etc.)
       title = " maple ",
       title_pos = "center",
-      winblend = 10, -- Window transparency (0-100)
+      winblend = 25, -- Window transparency (0-100)
       show_legend = false, -- Whether to show keybind legend in the UI
 
       -- Storage
