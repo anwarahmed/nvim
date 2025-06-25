@@ -1,4 +1,4 @@
-# neovim 0.10.4_1
+# neovim 0.11\*
 
 https://neovim.io/
 
