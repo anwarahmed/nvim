@@ -31,10 +31,11 @@ return {
       -- list of servers for mason to install
       ensure_installed = {
         "csharp_ls",
-        --"omnisharp",
+        "omnisharp",
         "ts_ls",
         "eslint",
         "html",
+        "emmet_ls",
         "cssmodules_ls",
         "tailwindcss",
         "lua_ls",
