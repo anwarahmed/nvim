@@ -31,7 +31,7 @@ return {
       -- list of servers for mason to install
       ensure_installed = {
         "csharp_ls",
-        "omnisharp",
+        -- "omnisharp",
         "ts_ls",
         "eslint",
         "html",
