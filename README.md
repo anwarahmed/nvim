@@ -23,4 +23,5 @@ brew install ripgrep
 brew install luarocks
 brew install wget
 brew install jesseduffield/lazygit/lazygit
+brew install television
 ```
