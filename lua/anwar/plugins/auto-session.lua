@@ -5,7 +5,7 @@ return {
 
     auto_session.setup({
       auto_restore = true,
-      suppressed_dirs = { "~/", "~/Dev/", "~/Downloads", "~/Documents", "~/Desktop/" },
+      suppressed_dirs = { "~/", "~/Dev/", "~/Downloads", "~/Documents", "~/Desktop/", "~/.config/*" },
     })
 
     local keymap = vim.keymap
