@@ -51,8 +51,8 @@ return {
             -- Lua patterns are supported, just put the text between / symbols:
             -- '/^StatusLine.*/' -- will match any highlight starting with "StatusLine"
           },
-          buf_opts = { buftype = { "prompt" } },
-          -- buf_name = {'name1','name2', name3'},
+          buf_opts = { buftype = { "prompt" }, filetype = { "alpha" } },
+          -- buf_name = {'name1', 'name2', name3'},
           -- buf_vars = { variable = {'match1', 'match2'} },
           -- win_opts = { option = {'match1', 'match2' } },
           -- win_vars = { variable = {'match1', 'match2'} },

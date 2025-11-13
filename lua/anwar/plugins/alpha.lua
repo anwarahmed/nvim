@@ -47,7 +47,7 @@ return {
       return dashboard.opts
     end
 
-    require("alpha").setup(applyColors({
+    applyColors({
       [[  ███       ███  ]],
       [[  ████      ████ ]],
       [[  ████     █████ ]],
@@ -90,7 +90,7 @@ return {
       [[                    ]],
       [[  l  l  l  l  ll l  ]],
       [[  a  a  a  b  b  b  ]],
-    }))
+    })
 
     -- dashboard.section.header.val = {
     --   "                                                        ",
@@ -142,5 +142,17 @@ return {
 
     -- Disable folding on alpha buffer
     vim.cmd([[autocmd FileType alpha setlocal nofoldenable]])
+
+    -- Patch alpha's redraw function to check buffer validity before attempting to draw
+    local alpha_redraw = alpha.redraw
+    alpha.redraw = function(...)
+      local buf = vim.api.nvim_get_current_buf()
+      if vim.api.nvim_buf_is_valid(buf) then
+        local ft = vim.bo[buf].filetype
+        if ft == "alpha" then
+          pcall(alpha_redraw, ...)
+        end
+      end
+    end
   end,
 }
