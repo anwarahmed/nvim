@@ -24,4 +24,5 @@ brew install luarocks
 brew install wget
 brew install jesseduffield/lazygit/lazygit
 brew install television
+brew install silicon
 ```
