@@ -11,17 +11,33 @@ The following files can be ignored:
 - `.git`
 - `.gitignore`
 
-## Homebrew
+## macOS Homebrew
 
-Install the following packages with Homebrew:
+Install the following packages:
 
 ```shell
-brew install nvm # setup .nvmrc with "lts/*"
+brew install nvm
+echo "lts/*" > ~/.nvmrc
 brew install neovim
 brew install fd
 brew install ripgrep
 brew install luarocks
 brew install wget
-brew install jesseduffield/lazygit/lazygit
+brew install lazygit
 brew install television
+```
+
+## ArchLinux / Omarchy
+
+Install the following packages:
+
+```shell
+sudo pacman -S nvm # alternatively, run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+echo "lts/*" > ~/.nvmrc
+sudo pacman -S fd
+sudo pacman -S ripgrep
+sudo pacman -S luarocks
+sudo pacman -S wget
+sudo pacman -S lazygit
+sudo pacman -S television
 ```
