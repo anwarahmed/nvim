@@ -30,8 +30,8 @@ return {
 
       -- list of servers for mason to install
       ensure_installed = {
-        "csharp_ls",
-        -- "omnisharp",
+        -- "csharp_ls",
+        "omnisharp",
         "ts_ls",
         "eslint",
         "html",
@@ -44,9 +44,9 @@ return {
 
     mason_tool_installer.setup({
       ensure_installed = {
-        "csharpier", -- c# formatter
+        -- "csharpier", -- c# formatter
         "prettier", -- prettier formatter
-        "stylua", -- lua formatter
+        "stylua",   -- lua formatter
         "eslint_d", -- js linter
       },
     })
