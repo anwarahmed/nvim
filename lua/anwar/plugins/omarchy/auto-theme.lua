@@ -6,6 +6,7 @@ local M = {}
 
 local theme_file = vim.fn.expand("~/.config/nvim/lua/anwar/plugins/omarchy/theme.lua")
 local last_modified = 0
+local last_target = ""
 local timer = nil
 
 -- Debug: Print when module loads
@@ -112,11 +113,13 @@ local function setup_watcher()
 
   local watch_file = vim.fn.expand(theme_file)
 
-  -- Get initial modification time
+  -- Get initial state (both symlink target and modification time)
   local stat = vim.loop.fs_stat(watch_file)
   if stat then
     last_modified = stat.mtime.sec
+    last_target = vim.fn.resolve(watch_file)
     vim.notify("[Omarchy Auto-Theme] Watching: " .. watch_file, vim.log.levels.INFO)
+    vim.notify("[Omarchy Auto-Theme] Target: " .. last_target, vim.log.levels.DEBUG)
   else
     vim.notify("[Omarchy Auto-Theme] Failed to stat file: " .. watch_file, vim.log.levels.ERROR)
     return
@@ -125,10 +128,22 @@ local function setup_watcher()
   -- Create timer that checks file every second
   timer = vim.loop.new_timer()
   timer:start(1000, 1000, vim.schedule_wrap(function()
+    -- Check both if the symlink target changed OR if the file was modified
+    local current_target = vim.fn.resolve(watch_file)
     local current_stat = vim.loop.fs_stat(watch_file)
-    if current_stat and current_stat.mtime.sec > last_modified then
-      vim.notify("[Omarchy Auto-Theme] File change detected!", vim.log.levels.INFO)
-      last_modified = current_stat.mtime.sec
+
+    local target_changed = current_target ~= last_target
+    local file_modified = current_stat and current_stat.mtime.sec > last_modified
+
+    if target_changed or file_modified then
+      if target_changed then
+        vim.notify("[Omarchy Auto-Theme] Symlink target changed: " .. current_target, vim.log.levels.INFO)
+        last_target = current_target
+      end
+      if file_modified then
+        vim.notify("[Omarchy Auto-Theme] File modification detected!", vim.log.levels.INFO)
+        last_modified = current_stat.mtime.sec
+      end
 
       -- Wait a bit for the file to be fully written
       vim.defer_fn(function()
@@ -149,19 +164,31 @@ local function setup_watcher()
   })
 end
 
+-- Track if we've applied the theme on startup
+local startup_applied = false
+
 -- Set up the watcher after Neovim has fully started
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     vim.notify("[Omarchy Auto-Theme] Setting up file watcher...", vim.log.levels.INFO)
 
-    -- Apply the theme after plugins have loaded
-    -- Alpha colors will be restored automatically after theme application
-    vim.defer_fn(function()
-      apply_theme()
-    end, 100)
-
     -- Set up the watcher for future changes
     setup_watcher()
+  end,
+})
+
+-- Apply Omarchy theme after any colorscheme loads (including onedark)
+-- This ensures Omarchy theme always takes precedence
+vim.api.nvim_create_autocmd("ColorScheme", {
+  callback = function()
+    if not startup_applied then
+      -- Wait a bit to ensure the colorscheme has fully loaded
+      vim.defer_fn(function()
+        vim.notify("[Omarchy Auto-Theme] Applying Omarchy theme...", vim.log.levels.INFO)
+        startup_applied = true
+        apply_theme()
+      end, 100)
+    end
   end,
 })
 
