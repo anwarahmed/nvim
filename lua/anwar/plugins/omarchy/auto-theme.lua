@@ -33,6 +33,9 @@ end
 
 -- Function to load and apply the theme
 local function apply_theme()
+  -- Reset to dark mode before applying new theme
+  vim.o.background = 'dark'
+
   -- Clear the module cache to force reload
   package.loaded["anwar.plugins.omarchy.theme"] = nil
 
@@ -98,9 +101,15 @@ local function apply_theme()
     end
   end
 
-  -- Restore alpha-nvim colors after theme application
+  -- Restore alpha-nvim colors and apply transparency after theme application
   vim.defer_fn(function()
     restore_alpha_colors()
+
+    -- Apply transparency settings from transparency.lua
+    local transparency_ok, _ = pcall(require, "anwar.plugins.omarchy.transparency")
+    if not transparency_ok then
+      vim.notify("[Omarchy Auto-Theme] Failed to load transparency settings", vim.log.levels.WARN)
+    end
   end, 50)
 end
 
