@@ -1,187 +1,176 @@
--- Auto-reload theme when theme.lua changes
--- This plugin watches the omarchy theme.lua file and automatically applies
--- theme changes without requiring a Neovim restart
+-- Omarchy Auto-Theme
+-- Watches theme.lua and automatically applies theme changes without restarting Neovim
 
-local M = {}
-
+-- State variables
 local theme_file = vim.fn.expand("~/.config/nvim/lua/anwar/plugins/omarchy/theme.lua")
-local last_modified = 0
 local last_target = ""
-local timer = nil
+local fs_event = nil
+local startup_applied = false
 
--- Debug: Print when module loads
-vim.notify("[Omarchy Auto-Theme] Module loaded", vim.log.levels.DEBUG)
+-- Alpha-nvim color definitions
+local ALPHA_COLORS = {
+  Alphab = { fg = "#3399ff", ctermfg = 33 },
+  Alphaa = { fg = "#53C670", ctermfg = 35 },
+  Alphag = { fg = "#39ac56", ctermfg = 29 },
+  Alphah = { fg = "#33994d", ctermfg = 23 },
+  Alphai = { fg = "#33994d", bg = "#39ac56", ctermfg = 23, ctermbg = 29 },
+  Alphaj = { fg = "#53C670", bg = "#33994d", ctermfg = 35, ctermbg = 23 },
+  Alphak = { fg = "#30A572", ctermfg = 36 },
+  Alphal = { fg = "#ec2160", ctermfg = 197, bold = true },
+}
 
--- Function to restore alpha-nvim colors
+-- Restore alpha-nvim highlight groups
 local function restore_alpha_colors()
-  -- Recreate alpha's highlight groups with the original colors
-  local alpha_colors = {
-    Alphab = { fg = "#3399ff", ctermfg = 33 },
-    Alphaa = { fg = "#53C670", ctermfg = 35 },
-    Alphag = { fg = "#39ac56", ctermfg = 29 },
-    Alphah = { fg = "#33994d", ctermfg = 23 },
-    Alphai = { fg = "#33994d", bg = "#39ac56", ctermfg = 23, ctermbg = 29 },
-    Alphaj = { fg = "#53C670", bg = "#33994d", ctermfg = 35, ctermbg = 23 },
-    Alphak = { fg = "#30A572", ctermfg = 36 },
-    Alphal = { fg = "#ec2160", ctermfg = 197, bold = true },
-  }
-
-  for name, hl in pairs(alpha_colors) do
+  for name, hl in pairs(ALPHA_COLORS) do
     vim.api.nvim_set_hl(0, name, hl)
   end
 end
 
--- Function to load and apply the theme
+-- Apply transparency settings
+local function apply_transparency()
+  local ok = pcall(require, "anwar.plugins.omarchy.transparency")
+  if not ok then
+    vim.notify("[Omarchy] Failed to load transparency settings", vim.log.levels.WARN)
+  end
+end
+
+-- Add plugin directory to runtimepath if needed
+local function ensure_in_runtimepath(plugin_dir)
+  local expanded = vim.fn.expand(plugin_dir)
+  local rtp_parts = vim.split(vim.o.runtimepath, ',')
+
+  -- Check if this directory is already in runtimepath
+  for _, path in ipairs(rtp_parts) do
+    if path == expanded then
+      return -- Already in runtimepath, nothing to do
+    end
+  end
+
+  -- Add to runtimepath if not already there
+  vim.opt.runtimepath:prepend(expanded)
+end
+
+-- Apply a colorscheme (function or string)
+local function apply_colorscheme(colorscheme)
+  -- Check if colorscheme is a function (custom theme like aetheria)
+  if type(colorscheme) == "function" then
+    -- Execute the function to apply custom highlighting
+    local ok, err = pcall(colorscheme)
+    if ok then
+      vim.notify("Theme reloaded successfully", vim.log.levels.INFO)
+    else
+      vim.notify("Failed to apply custom colorscheme: " .. tostring(err), vim.log.levels.ERROR)
+    end
+  -- Check if colorscheme is a string (plugin-based theme like catppuccin, gruvbox, etc.)
+  elseif type(colorscheme) == "string" then
+    -- Apply the colorscheme by name
+    local ok, err = pcall(vim.cmd.colorscheme, colorscheme)
+    if ok then
+      vim.notify("Theme changed to: " .. colorscheme, vim.log.levels.INFO)
+    else
+      vim.notify("Failed to apply colorscheme '" .. colorscheme .. "': " .. tostring(err), vim.log.levels.ERROR)
+    end
+  end
+end
+
+-- Main theme application function
 local function apply_theme()
-  -- Reset to dark mode before applying new theme
+  -- Step 1: Reset to dark mode before applying new theme
+  -- This ensures a consistent starting point for all themes
   vim.o.background = 'dark'
 
-  -- Clear the module cache to force reload
+  -- Step 2: Clear module cache to force reload
+  -- This ensures we get the latest theme configuration
   package.loaded["anwar.plugins.omarchy.theme"] = nil
-
-  -- Load the theme configuration
   local ok, theme_config = pcall(require, "anwar.plugins.omarchy.theme")
   if not ok then
     vim.notify("Failed to load theme configuration: " .. tostring(theme_config), vim.log.levels.ERROR)
     return
   end
 
-  -- First, check for local directory plugins and ensure they're loaded
+  -- Step 3: Process theme specs
   for _, spec in ipairs(theme_config) do
+    -- First, check for local directory plugins and ensure they're loaded
     if spec.dir then
-      local plugin_dir = vim.fn.expand(spec.dir)
-
-      -- Check if this directory is already in runtimepath
-      local rtp_parts = vim.split(vim.o.runtimepath, ',')
-      local in_rtp = false
-      for _, path in ipairs(rtp_parts) do
-        if path == plugin_dir then
-          in_rtp = true
-          break
-        end
-      end
-
-      -- Add to runtimepath if not already there
-      if not in_rtp then
-        vim.opt.runtimepath:prepend(plugin_dir)
-      end
+      ensure_in_runtimepath(spec.dir)
     end
-  end
 
-  -- Now extract and apply the colorscheme
-  for _, spec in ipairs(theme_config) do
+    -- Then extract and apply the colorscheme
     if spec.opts and spec.opts.colorscheme then
-      local colorscheme = spec.opts.colorscheme
-
-      -- Check if colorscheme is a function (custom theme)
-      if type(colorscheme) == "function" then
-        -- Execute the function to apply custom highlighting
-        local status, err = pcall(colorscheme)
-        if not status then
-          vim.notify("Failed to apply custom colorscheme: " .. tostring(err), vim.log.levels.ERROR)
-        else
-          vim.notify("Theme reloaded successfully", vim.log.levels.INFO)
-        end
-      elseif type(colorscheme) == "string" then
-        -- For plugin-based colorschemes, use Lazy's loader if available
-        local has_lazy, lazy_loader = pcall(require, "lazy.core.loader")
-        if has_lazy then
-          -- Try to load the colorscheme plugin if it's lazy-loaded
-          pcall(lazy_loader.load, { plugins = { colorscheme } })
-        end
-
-        -- Apply the colorscheme by name
-        local status, err = pcall(vim.cmd.colorscheme, colorscheme)
-        if not status then
-          vim.notify("Failed to apply colorscheme '" .. colorscheme .. "': " .. tostring(err), vim.log.levels.ERROR)
-        else
-          vim.notify("Theme changed to: " .. colorscheme, vim.log.levels.INFO)
-        end
-      end
+      apply_colorscheme(spec.opts.colorscheme)
     end
   end
 
-  -- Restore alpha-nvim colors and apply transparency after theme application
+  -- Step 4: Post-processing after theme application
+  -- Restore alpha-nvim colors and apply transparency settings
   vim.defer_fn(function()
     restore_alpha_colors()
-
-    -- Apply transparency settings from transparency.lua
-    local transparency_ok, _ = pcall(require, "anwar.plugins.omarchy.transparency")
-    if not transparency_ok then
-      vim.notify("[Omarchy Auto-Theme] Failed to load transparency settings", vim.log.levels.WARN)
-    end
+    apply_transparency()
   end, 50)
 end
 
--- Set up timer-based file watcher (polls every second)
+-- Set up filesystem event watcher using libuv
 local function setup_watcher()
-  if timer then
-    vim.notify("[Omarchy Auto-Theme] Watcher already running", vim.log.levels.WARN)
+  if fs_event then
+    vim.notify("[Omarchy] Watcher already running", vim.log.levels.WARN)
     return
   end
 
-  local watch_file = vim.fn.expand(theme_file)
+  -- Get initial symlink target
+  last_target = vim.fn.resolve(theme_file)
+  vim.notify("[Omarchy] Watching: " .. theme_file, vim.log.levels.INFO)
 
-  -- Get initial state (both symlink target and modification time)
-  local stat = vim.loop.fs_stat(watch_file)
-  if stat then
-    last_modified = stat.mtime.sec
-    last_target = vim.fn.resolve(watch_file)
-    vim.notify("[Omarchy Auto-Theme] Watching: " .. watch_file, vim.log.levels.INFO)
-    vim.notify("[Omarchy Auto-Theme] Target: " .. last_target, vim.log.levels.DEBUG)
-  else
-    vim.notify("[Omarchy Auto-Theme] Failed to stat file: " .. watch_file, vim.log.levels.ERROR)
+  -- Create filesystem event watcher
+  fs_event = vim.loop.new_fs_event()
+  if not fs_event then
+    vim.notify("[Omarchy] Failed to create fs_event watcher", vim.log.levels.ERROR)
     return
   end
 
-  -- Create timer that checks file every second
-  timer = vim.loop.new_timer()
-  timer:start(1000, 1000, vim.schedule_wrap(function()
-    -- Check both if the symlink target changed OR if the file was modified
-    local current_target = vim.fn.resolve(watch_file)
-    local current_stat = vim.loop.fs_stat(watch_file)
-
-    local target_changed = current_target ~= last_target
-    local file_modified = current_stat and current_stat.mtime.sec > last_modified
-
-    if target_changed or file_modified then
-      if target_changed then
-        vim.notify("[Omarchy Auto-Theme] Symlink target changed: " .. current_target, vim.log.levels.INFO)
-        last_target = current_target
-      end
-      if file_modified then
-        vim.notify("[Omarchy Auto-Theme] File modification detected!", vim.log.levels.INFO)
-        last_modified = current_stat.mtime.sec
-      end
-
-      -- Wait a bit for the file to be fully written
-      vim.defer_fn(function()
-        apply_theme()
-      end, 200)
+  -- Start watching the theme file for changes
+  local ok, err = fs_event:start(theme_file, {}, vim.schedule_wrap(function(err, filename, events)
+    if err then
+      vim.notify("[Omarchy] Watcher error: " .. err, vim.log.levels.ERROR)
+      return
     end
+
+    -- Check if the symlink target changed
+    local current_target = vim.fn.resolve(theme_file)
+    local target_changed = current_target ~= last_target
+
+    if target_changed then
+      vim.notify("[Omarchy] Symlink target changed: " .. current_target, vim.log.levels.INFO)
+      last_target = current_target
+    else
+      vim.notify("[Omarchy] File modification detected", vim.log.levels.INFO)
+    end
+
+    -- Wait a bit for the file to be fully written before applying
+    vim.defer_fn(apply_theme, 200)
   end))
 
-  -- Clean up on exit
+  if not ok then
+    vim.notify("[Omarchy] Failed to start fs_event watcher: " .. (err or "unknown error"), vim.log.levels.ERROR)
+    fs_event = nil
+    return
+  end
+
+  -- Clean up watcher on Neovim exit
   vim.api.nvim_create_autocmd("VimLeavePre", {
     callback = function()
-      if timer then
-        timer:stop()
-        timer:close()
-        timer = nil
+      if fs_event then
+        fs_event:stop()
+        fs_event = nil
       end
     end,
   })
 end
 
--- Track if we've applied the theme on startup
-local startup_applied = false
-
 -- Set up the watcher after Neovim has fully started
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
-    vim.notify("[Omarchy Auto-Theme] Setting up file watcher...", vim.log.levels.INFO)
-
-    -- Set up the watcher for future changes
+    vim.notify("[Omarchy] Setting up file watcher...", vim.log.levels.INFO)
+    -- Set up the watcher for future theme changes
     setup_watcher()
   end,
 })
@@ -193,7 +182,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     if not startup_applied then
       -- Wait a bit to ensure the colorscheme has fully loaded
       vim.defer_fn(function()
-        vim.notify("[Omarchy Auto-Theme] Applying Omarchy theme...", vim.log.levels.INFO)
+        vim.notify("[Omarchy] Applying Omarchy theme...", vim.log.levels.INFO)
         startup_applied = true
         apply_theme()
       end, 100)
@@ -203,9 +192,8 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
 -- Create a command to manually reload the theme for testing
 vim.api.nvim_create_user_command("OmarchyReloadTheme", function()
-  vim.notify("[Omarchy Auto-Theme] Manual reload triggered", vim.log.levels.INFO)
+  vim.notify("[Omarchy] Manual reload triggered", vim.log.levels.INFO)
   apply_theme()
 end, { desc = "Manually reload Omarchy theme" })
 
--- Return empty table for Lazy.nvim compatibility (won't load LazyVim)
 return {}
