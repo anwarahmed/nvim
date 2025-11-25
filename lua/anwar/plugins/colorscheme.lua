@@ -96,10 +96,9 @@ return {
   --   end,
   -- },
 
-  { -- onedark (disabled - using Omarchy theme system)
+  { -- onedark
     "navarasu/onedark.nvim",
     name = "onedark",
-    enabled = false, -- Disabled in favor of Omarchy auto-theme
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
