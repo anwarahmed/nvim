@@ -1,6 +1,7 @@
 return {
   "tadaa/vimade",
   name = "vimade",
+  enabled = false, -- Disabled due to rendering issues with scrolling
   config = function()
     -- default opts (you can partially set these or configure them however you like)
     require("vimade").setup({
