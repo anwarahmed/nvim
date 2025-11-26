@@ -106,6 +106,8 @@ local function apply_theme()
   vim.defer_fn(function()
     restore_alpha_colors()
     apply_transparency()
+    -- Force a redraw to make changes visible immediately
+    vim.cmd('redraw!')
   end, 50)
 end
 
@@ -172,6 +174,22 @@ vim.api.nvim_create_autocmd("VimEnter", {
     vim.notify("[Omarchy] Setting up file watcher...", vim.log.levels.INFO)
     -- Set up the watcher for future theme changes
     setup_watcher()
+  end,
+})
+
+-- Apply transparency after UI is ready
+vim.api.nvim_create_autocmd("UIEnter", {
+  callback = function()
+    -- Use schedule to ensure this runs after everything else
+    vim.schedule(function()
+      apply_transparency()
+      restore_alpha_colors()
+      -- Force multiple redraws to ensure changes are visible
+      vim.cmd('redraw!')
+      vim.schedule(function()
+        vim.cmd('redraw!')
+      end)
+    end)
   end,
 })
 
