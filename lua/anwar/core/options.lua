@@ -52,3 +52,9 @@ opt.swapfile = false
 
 -- scroll-off
 -- opt.scrolloff = 50 -- start scrolling at the specified line number from the top or bottom of the file
+
+-- rendering performance
+opt.lazyredraw = false -- disable lazy redraw to fix scrolling/rendering issues
+opt.ttyfast = true -- faster terminal connection
+opt.updatetime = 250 -- faster completion and updates (default 4000)
+opt.redrawtime = 1500 -- time in ms for redrawing screen (default 2000)
