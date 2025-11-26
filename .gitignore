@@ -44,3 +44,6 @@ luac.out
 
 # Lazy lock 
 lazy-lock.json
+
+# Claude
+.claude
