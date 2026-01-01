@@ -15,10 +15,35 @@ local plugins = {
   }
 }
 
--- Add all theme plugins to the table and make them load immediately
+-- Determine active theme from theme.lua
+local theme_file = vim.fn.expand("~/.config/nvim/lua/anwar/plugins/omarchy/theme.lua")
+local active_colorscheme = nil
+
+-- Parse theme.lua to find the active colorscheme
+local ok, theme_config = pcall(dofile, theme_file)
+if ok and type(theme_config) == "table" then
+  for _, spec in ipairs(theme_config) do
+    if spec.opts and spec.opts.colorscheme then
+      active_colorscheme = spec.opts.colorscheme
+      break
+    end
+  end
+end
+
+-- Add all theme plugins, but only load the active one immediately
 for _, theme_spec in ipairs(all_themes) do
-  -- Override lazy setting to ensure themes load on startup
-  theme_spec.lazy = false
+  -- Check if this theme matches the active colorscheme
+  local theme_name = theme_spec.name or theme_spec[1]:match("([^/]+)%.nvim$") or theme_spec[1]:match("([^/]+)$")
+
+  -- Only load the active theme immediately
+  if active_colorscheme and theme_name == active_colorscheme then
+    theme_spec.lazy = false
+    theme_spec.priority = 1000
+  else
+    -- Keep others lazy (respecting their original setting)
+    theme_spec.lazy = true
+  end
+
   table.insert(plugins, theme_spec)
 end
 

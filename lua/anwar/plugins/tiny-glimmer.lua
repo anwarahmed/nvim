@@ -11,7 +11,7 @@ return {
       disable_warnings = true,
 
       -- Animation refresh rate in milliseconds
-      refresh_interval_ms = 8,
+      refresh_interval_ms = 16,
 
       -- Automatic keybinding overwrites
       overwrite = {
