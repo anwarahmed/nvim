@@ -17,7 +17,7 @@ Install the following packages:
 
 ```shell
 brew install rust
-cargo install tree-sitter-cli
+cargo install tree-sitter-cli # make sure to add cargo's bin directory to your PATH, e.g., export PATH="$HOME/.cargo/bin:$PATH"
 brew install nvm
 echo "lts/*" > ~/.nvmrc
 brew install neovim
@@ -48,3 +48,17 @@ sudo pacman -S lazygit
 sudo pacman -S television
 sudo pacman -S tree-sitter
 ```
+
+## Upgrading from NeoVim 0.11
+
+When upgrading from NeoVim 0.11, you may encounter issues with the `nvim-treesitter` plugin. To resolve this, follow these steps:
+
+1. Remove the existing `tree-sitter` parser files:
+   ```shell
+   m -rf ~/.config/local/share/nvim/tree-sitter-*-tmp
+   ```
+2. Open NeoVim and run the following commands to update the plugins and the `nvim-treesitter` parsers:
+   ```vim
+   :Lazy update all
+   :TSUpdate
+   ```
