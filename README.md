@@ -16,6 +16,8 @@ The following files can be ignored:
 Install the following packages:
 
 ```shell
+brew install rust
+cargo install tree-sitter-cli
 brew install nvm
 echo "lts/*" > ~/.nvmrc
 brew install neovim
@@ -25,6 +27,7 @@ brew install luarocks
 brew install wget
 brew install lazygit
 brew install television
+brew install tree-sitter
 ```
 
 ## ArchLinux / Omarchy
@@ -32,6 +35,9 @@ brew install television
 Install the following packages:
 
 ```shell
+sudo pacman -S rustup
+rustup default stable
+cargo install tree-sitter-cli
 sudo pacman -S nvm # alternatively, run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 echo "lts/*" > ~/.nvmrc
 sudo pacman -S fd
@@ -40,4 +46,5 @@ sudo pacman -S luarocks
 sudo pacman -S wget
 sudo pacman -S lazygit
 sudo pacman -S television
+sudo pacman -S tree-sitter
 ```
