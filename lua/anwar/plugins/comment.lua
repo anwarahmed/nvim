@@ -51,7 +51,16 @@ return {
         extra = true,
       },
       ---Function to call before (un)comment
-      pre_hook = ts_context_commentstring.create_pre_hook(), -- for commenting tsx, jsx, svelte, html files
+      pre_hook = function(ctx)
+        local ft = vim.bo.filetype
+        local embedded_fts = { "tsx", "jsx", "svelte", "html", "vue" }
+        for _, f in ipairs(embedded_fts) do
+          if ft == f then
+            return ts_context_commentstring.create_pre_hook()(ctx)
+          end
+        end
+        return vim.bo.commentstring
+      end,
       ---Function to call after (un)comment
       post_hook = nil,
     })
