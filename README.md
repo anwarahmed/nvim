@@ -55,7 +55,7 @@ When upgrading from NeoVim 0.11, you may encounter issues with the `nvim-treesit
 
 1. Remove the existing `tree-sitter` parser files:
    ```shell
-   m -rf ~/.config/local/share/nvim/tree-sitter-*-tmp
+   rm -rf ~/.config/local/share/nvim/tree-sitter-*-tmp
    ```
 2. Open NeoVim and run the following commands to update the plugins and the `nvim-treesitter` parsers:
    ```vim
