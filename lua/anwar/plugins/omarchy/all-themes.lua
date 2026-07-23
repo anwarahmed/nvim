@@ -1,76 +1,19 @@
+-- Every Omarchy-selectable colorscheme plugin.
+-- Registered here as bare specs; omarchy-loader.lua decides how they load
+-- (eagerly, so any theme is ready for hot-reloading — see auto-theme.lua).
 return {
-	-- Load all theme plugins but don't apply them
-	-- This ensures all colorschemes are available for hot-reloading
-	{
-		"ribru17/bamboo.nvim",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"bjarneo/aether.nvim",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"bjarneo/ethereal.nvim",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"bjarneo/hackerman.nvim",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"catppuccin/nvim",
-		name = "catppuccin",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"sainnhe/everforest",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"kepano/flexoki-neovim",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"ellisonleao/gruvbox.nvim",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"rebelot/kanagawa.nvim",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"tahayvr/matteblack.nvim",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"loctvl842/monokai-pro.nvim",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"shaunsingh/nord.nvim",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"rose-pine/neovim",
-		name = "rose-pine",
-		lazy = true,
-		priority = 1000,
-	},
-	{
-		"folke/tokyonight.nvim",
-		lazy = true,
-		priority = 1000,
-	},
+  { "ribru17/bamboo.nvim" },
+  { "bjarneo/aether.nvim" },
+  { "bjarneo/ethereal.nvim" },
+  { "bjarneo/hackerman.nvim" },
+  { "catppuccin/nvim", name = "catppuccin" },
+  { "sainnhe/everforest" },
+  { "kepano/flexoki-neovim" },
+  { "ellisonleao/gruvbox.nvim" },
+  { "rebelot/kanagawa.nvim" },
+  { "tahayvr/matteblack.nvim" },
+  { "loctvl842/monokai-pro.nvim" },
+  { "shaunsingh/nord.nvim" },
+  { "rose-pine/neovim", name = "rose-pine" },
+  { "folke/tokyonight.nvim" },
 }
