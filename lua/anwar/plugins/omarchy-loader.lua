@@ -1,25 +1,22 @@
--- Omarchy auto-theme loader
--- This loads the auto-theme watcher and all theme plugins from all-themes.lua
+-- Omarchy auto-theme entry point.
+--
+-- This is the only spec lazy.nvim imports from the Omarchy setup; everything
+-- under anwar/plugins/omarchy/ is a helper module required from here. It starts
+-- the theme watcher and registers every selectable colorscheme plugin.
 
--- Load all theme plugin specs from all-themes.lua
-local all_themes = require("anwar.plugins.omarchy.all-themes")
+-- Start the watcher that hot-reloads the active theme. It only registers
+-- autocmds and a filesystem watcher (no plugin dependency), so it is safe to
+-- load here as this spec module is collected (see auto-theme.lua).
+require("anwar.plugins.omarchy.auto-theme")
 
--- Create a combined table with the auto-theme loader and all theme plugins
-local plugins = {
-  {
-    "LazyVim/LazyVim",
-    -- Load the auto-theme watcher
-    init = function()
-      require("anwar.plugins.omarchy.auto-theme")
-    end,
-  }
-}
+local themes = require("anwar.plugins.omarchy.all-themes")
 
--- Add all theme plugins to the table and make them load immediately
-for _, theme_spec in ipairs(all_themes) do
-  -- Override lazy setting to ensure themes load on startup
-  theme_spec.lazy = false
-  table.insert(plugins, theme_spec)
+-- Load every theme eagerly so any colorscheme is ready for hot-reloading.
+local specs = {}
+for _, theme in ipairs(themes) do
+  theme.lazy = false
+  theme.priority = 1000
+  specs[#specs + 1] = theme
 end
 
-return plugins
+return specs
