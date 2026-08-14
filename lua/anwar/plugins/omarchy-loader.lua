@@ -1,12 +1,12 @@
 -- Omarchy auto-theme entry point.
 --
 -- This is the only spec lazy.nvim imports from the Omarchy setup; everything
--- under anwar/plugins/omarchy/ is a helper module required from here. It starts
--- the theme watcher and registers every selectable colorscheme plugin.
+-- under anwar/plugins/omarchy/ is a helper module required from here. It wires
+-- up theme application and registers every selectable colorscheme plugin.
 
--- Start the watcher that hot-reloads the active theme. It only registers
--- autocmds and a filesystem watcher (no plugin dependency), so it is safe to
--- load here as this spec module is collected (see auto-theme.lua).
+-- Register the autocmds that apply the theme, plus the :OmarchyReloadTheme
+-- command the theme-set hook calls. No plugin dependency, so it is safe to load
+-- here as this spec module is collected (see auto-theme.lua).
 require("anwar.plugins.omarchy.auto-theme")
 
 local themes = require("anwar.plugins.omarchy.all-themes")
