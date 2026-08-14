@@ -4,12 +4,18 @@ https://neovim.io/
 
 My NeoVim setup
 
+The same config runs on both macOS and [Omarchy](https://omarchy.org/) (Arch
+Linux); it detects which at startup. On Omarchy the colorscheme follows the
+system theme, and everywhere else it uses a self-contained one — no per-machine
+edits and no separate branch. Install the packages for your platform below.
+
 Copy the contents of this repository to `~/.config/nvim`.
 The following files can be ignored:
 
 - `README.md`
 - `.git`
 - `.gitignore`
+- `CLAUDE.md` and `.claude/` (notes and settings for AI coding agents)
 
 ## macOS Homebrew
 
@@ -48,6 +54,22 @@ sudo pacman -S lazygit
 sudo pacman -S television
 sudo pacman -S tree-sitter
 ```
+
+## Omarchy theme integration
+
+On Omarchy the colorscheme follows whichever theme the system is set to. That
+works out of the box on startup, but picking up a theme change in an *already
+running* Neovim needs a one-time hook install:
+
+```shell
+omarchy hook install theme-set ~/.config/nvim/hooks/reload-neovim
+```
+
+`omarchy theme set <name>` then reloads every open Neovim. Without the hook you
+can still reload by hand with `:OmarchyReloadTheme`.
+
+None of this loads on macOS. If detection ever guesses wrong on a machine, pin
+it with `NVIM_FORCE_OMARCHY=1` (or `=0`) in the environment.
 
 ## Upgrading from NeoVim 0.11
 

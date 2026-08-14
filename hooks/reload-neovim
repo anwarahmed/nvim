@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Tell every running Neovim to re-read the Omarchy theme.
+#
+# omarchy-theme-set replaces ~/.local/state/omarchy/current/theme wholesale
+# (rm -rf + mv), so the theme file gets a new inode on every switch and an
+# in-editor fs_event watcher goes stale after the first one. Pushing the
+# reload from this hook is reliable instead.
+#
+# Install with: omarchy hook install theme-set ~/.config/nvim/hooks/reload-neovim
+
+set -u
+
+runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+
+shopt -s nullglob
+for socket in "$runtime_dir"/nvim.*; do
+  [[ -S $socket ]] || continue
+
+  # Guarded so a Neovim running some other config is left alone, and timed out
+  # so a busy or wedged instance never stalls the theme switch.
+  timeout 2 nvim --server "$socket" --remote-expr \
+    'exists(":OmarchyReloadTheme") ? execute("OmarchyReloadTheme") : ""' \
+    >/dev/null 2>&1 || true
+done
