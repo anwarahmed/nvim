@@ -4,31 +4,18 @@ https://neovim.io/
 
 My NeoVim setup
 
+> **This branch (`nvim-omarchy`) targets [Omarchy](https://omarchy.org/) on Arch Linux only.**
+> It replaces the standalone colorscheme config with a theme pipeline driven by
+> the active Omarchy theme, so it is not portable to other systems.
+> For macOS or plain Linux, use the `main` branch instead.
+
 Copy the contents of this repository to `~/.config/nvim`.
 The following files can be ignored:
 
 - `README.md`
 - `.git`
 - `.gitignore`
-
-## macOS Homebrew
-
-Install the following packages:
-
-```shell
-brew install rust
-cargo install tree-sitter-cli # make sure to add cargo's bin directory to your PATH, e.g., export PATH="$HOME/.cargo/bin:$PATH"
-brew install nvm
-echo "lts/*" > ~/.nvmrc
-brew install neovim
-brew install fd
-brew install ripgrep
-brew install luarocks
-brew install wget
-brew install lazygit
-brew install television
-brew install tree-sitter
-```
+- `CLAUDE.md` and `.claude/` (notes and settings for AI coding agents)
 
 ## ArchLinux / Omarchy
 
@@ -48,6 +35,19 @@ sudo pacman -S lazygit
 sudo pacman -S television
 sudo pacman -S tree-sitter
 ```
+
+## Omarchy theme integration
+
+The colorscheme follows whichever theme Omarchy is set to. That works out of the
+box on startup, but picking up a theme change in an *already running* Neovim
+needs a one-time hook install:
+
+```shell
+omarchy hook install theme-set ~/.config/nvim/hooks/reload-neovim
+```
+
+`omarchy theme set <name>` then reloads every open Neovim. Without the hook you
+can still reload by hand with `:OmarchyReloadTheme`.
 
 ## Upgrading from NeoVim 0.11
 
