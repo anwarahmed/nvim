@@ -11,6 +11,14 @@ vim.api.nvim_set_hl(0, "SignColumn", { bg = "NONE" })
 -- State variables
 local startup_applied = false
 
+-- Where Omarchy materializes the selected theme's Neovim colorscheme. A theme
+-- that does not theme Neovim simply has no file here.
+local THEME_FILE = vim.fn.expand("~/.local/state/omarchy/current/theme/neovim.lua")
+
+-- Themes already complained about, so a switch to one that cannot be applied
+-- is reported once rather than on every reload the theme-set hook triggers.
+local warned = {}
+
 -- Alpha-nvim color definitions
 local ALPHA_COLORS = {
   Alphab = { fg = "#3399ff", ctermfg = 33 },
@@ -72,6 +80,22 @@ end
 local function apply_theme()
   vim.o.background = 'dark'
 
+  -- Not every Omarchy theme themes Neovim -- several stock ones ship no
+  -- neovim.lua, which leaves theme.lua dangling. That is a normal state, not a
+  -- failure: keep whatever colorscheme is up and say so once, rather than
+  -- raising a load error on every startup.
+  if not (vim.uv or vim.loop).fs_stat(THEME_FILE) then
+    local name = current_theme_name()
+    if not warned[name] then
+      warned[name] = true
+      vim.notify(
+        ("[Omarchy] Theme '%s' ships no Neovim colorscheme; keeping the current one."):format(name),
+        vim.log.levels.WARN
+      )
+    end
+    return
+  end
+
   -- Reload theme configuration
   package.loaded["anwar.plugins.omarchy.theme"] = nil
   local ok, theme_config = pcall(require, "anwar.plugins.omarchy.theme")
@@ -110,10 +134,15 @@ local function apply_theme()
   vim.o.eventignore = eventignore_old
   vim.cmd('redraw')
 
-  if wanted and not applied then
+  -- all-themes.lua derives its plugin list from the installed themes, so this
+  -- normally only fires for a theme installed since Neovim started -- lazy.nvim
+  -- resolves plugins at startup, so that one needs a restart.
+  local name = current_theme_name()
+  if wanted and not applied and not warned["plugin:" .. name] then
+    warned["plugin:" .. name] = true
     vim.notify(
-      ("[Omarchy] Theme '%s' needs the colorscheme %s, which is not installed.\nAdd %s to lua/anwar/plugins/omarchy/all-themes.lua, then restart Neovim.")
-        :format(current_theme_name(), type(wanted) == "string" and ("'" .. wanted .. "'") or "<function>", plugin or "its plugin"),
+      ("[Omarchy] Theme '%s' needs the colorscheme %s (%s), which is not installed.\nRestart Neovim to pick it up.")
+        :format(name, type(wanted) == "string" and ("'" .. wanted .. "'") or "<function>", plugin or "plugin unknown"),
       vim.log.levels.WARN
     )
   end
