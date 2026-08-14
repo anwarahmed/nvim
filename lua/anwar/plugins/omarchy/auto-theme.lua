@@ -1,5 +1,7 @@
 -- Omarchy Auto-Theme
--- Watches theme.lua and automatically applies theme changes without restarting Neovim
+-- Applies the current Omarchy theme, and re-applies it on demand without
+-- restarting Neovim. Live theme switches arrive via the omarchy theme-set hook
+-- in hooks/reload-neovim, which calls :OmarchyReloadTheme over the RPC socket.
 
 -- Apply initial transparency immediately to prevent flicker on startup
 vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
@@ -7,9 +9,6 @@ vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
 vim.api.nvim_set_hl(0, "SignColumn", { bg = "NONE" })
 
 -- State variables
-local theme_file = vim.fn.expand("~/.config/nvim/lua/anwar/plugins/omarchy/theme.lua")
-local last_target = ""
-local fs_event = nil
 local startup_applied = false
 
 -- Alpha-nvim color definitions
@@ -103,51 +102,6 @@ local function apply_theme()
   vim.cmd('redraw')
 end
 
--- Set up filesystem watcher for theme changes
-local function setup_watcher()
-  if fs_event then
-    return
-  end
-
-  last_target = vim.fn.resolve(theme_file)
-  fs_event = vim.loop.new_fs_event()
-
-  if not fs_event then
-    vim.notify("[Omarchy] Failed to create fs_event watcher", vim.log.levels.ERROR)
-    return
-  end
-
-  local ok, err = fs_event:start(theme_file, {}, vim.schedule_wrap(function(err, filename, events)
-    if err then
-      vim.notify("[Omarchy] Watcher error: " .. err, vim.log.levels.ERROR)
-      return
-    end
-
-    local current_target = vim.fn.resolve(theme_file)
-    if current_target ~= last_target then
-      last_target = current_target
-    end
-
-    -- Wait for file to be fully written before applying
-    vim.defer_fn(apply_theme, 200)
-  end))
-
-  if not ok then
-    vim.notify("[Omarchy] Failed to start watcher: " .. (err or "unknown error"), vim.log.levels.ERROR)
-    fs_event = nil
-    return
-  end
-
-  vim.api.nvim_create_autocmd("VimLeavePre", {
-    callback = function()
-      if fs_event then
-        fs_event:stop()
-        fs_event = nil
-      end
-    end,
-  })
-end
-
 -- Apply theme when a colorscheme loads
 vim.api.nvim_create_autocmd("ColorScheme", {
   callback = function()
@@ -158,14 +112,13 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   end,
 })
 
--- Apply theme on startup and set up file watcher
+-- Apply theme on startup
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     if not startup_applied then
       startup_applied = true
       apply_theme()
     end
-    setup_watcher()
   end,
 })
 
@@ -179,10 +132,10 @@ vim.api.nvim_create_autocmd("UIEnter", {
   end,
 })
 
--- Create a command to manually reload the theme for testing
+-- Re-apply the current theme. Driven by the theme-set hook on every theme
+-- switch, so it stays silent -- the colors changing is feedback enough.
 vim.api.nvim_create_user_command("OmarchyReloadTheme", function()
-  vim.notify("[Omarchy] Manual reload triggered", vim.log.levels.INFO)
   apply_theme()
-end, { desc = "Manually reload Omarchy theme" })
+end, { desc = "Reload the current Omarchy theme" })
 
 return {}

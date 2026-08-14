@@ -42,8 +42,8 @@ luac.out
 # DS_Store
 .DS_Store
 
-# Lazy lock 
+# Lazy lock
 lazy-lock.json
 
 # Claude
-.claude
+.claude/settings.local.json
