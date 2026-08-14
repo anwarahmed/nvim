@@ -125,6 +125,14 @@ An earlier version used a `vim.loop.new_fs_event` watcher on `theme.lua`. **Do n
 
 `:OmarchyReloadTheme` is deliberately silent — the hook fires it in every open Neovim on every theme change, so a notification there is pure noise.
 
+**Do not use `vim.g.colors_name` to check whether the Omarchy theme applied.** It names the *engine*, not the theme. Themes that ship their own plugin (Catppuccin, Gruvbox, Nord) set it to that plugin's name, but a theme with no plugin of its own drives an existing engine with a remapped palette — Andromeda calls `tokyonight.setup{ style = "moon", on_colors = ... }`, so `colors_name` reads `tokyonight-moon` even though Andromeda is correctly applied. Verify with `omarchy theme current`, or `~/.local/state/omarchy/current/theme.name`, or by comparing a highlight against the palette in the theme file:
+
+```bash
+# Andromeda: CursorLineNr should be #ffe66d, not stock tokyonight's #ff966c
+nvim --headless -c 'autocmd VimEnter * ++nested lua vim.defer_fn(function()
+  print(("#%06x"):format(vim.api.nvim_get_hl(0,{name="CursorLineNr"}).fg)) vim.cmd("qa!") end, 2000)'
+```
+
 ## Conventions
 
 - Work on a feature branch and open a PR against `main`; history shows every change landing as a merged PR. `main` is the only long-lived branch — `nvim-omarchy` is a retired platform branch kept as a fallback, so do not add to it.
