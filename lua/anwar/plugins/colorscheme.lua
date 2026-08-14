@@ -1,3 +1,10 @@
+-- The portable colorscheme, used on every machine that is not running Omarchy.
+-- On Omarchy the colorscheme follows the system theme instead, so contribute
+-- nothing there and let plugins/omarchy-loader.lua take over.
+if require("anwar.platform").is_omarchy() then
+  return {}
+end
+
 return {
   -- { -- tokyonight
   --   "folke/tokyonight.nvim",

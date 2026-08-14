@@ -1,0 +1,1 @@
+/home/anwar/.local/state/omarchy/current/theme/neovim.lua
