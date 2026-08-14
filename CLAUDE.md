@@ -11,6 +11,7 @@ Update it in the *same* commit as the code change. Specifically:
 | If you changed... | Update |
 | --- | --- |
 | the Omarchy theme pipeline, the `theme.lua` symlink target, or `hooks/` | **Architecture → The Omarchy theme pipeline**, including any path that moved |
+| `all-themes.lua`, or upgraded Omarchy so it ships new themes | **The Omarchy theme pipeline** — re-run the plugin audit there |
 | which directories `lazy.lua` imports, or added/removed a spec subdirectory | **How specs are discovered** |
 | anything platform-specific, or the `is_omarchy()` guards | **Platform detection** — and re-test both paths with `NVIM_FORCE_OMARCHY` |
 | how a change gets verified, or added a real linter/test runner | **Verifying changes** |
@@ -111,7 +112,17 @@ theme.lua -> ~/.local/state/omarchy/current/theme/neovim.lua
 
 Omarchy owns the target. `omarchy theme set <name>` materializes the chosen theme into `~/.local/state/omarchy/current/theme/` by doing `rm -rf` + `mv`, so the target file gets a **new inode on every theme switch**. The symlink path stays stable; the file behind it does not. This is why the config does not watch the file — see below.
 
-`omarchy/auto-theme.lua` applies the theme on `VimEnter`/`ColorScheme`, re-applies transparency (`omarchy/transparency.lua`) and the alpha-nvim dashboard colors, and exposes `:OmarchyReloadTheme`. It reads the symlinked module as a lazy.nvim-style spec list and calls `spec.opts.colorscheme` — which may be a string *or* a function, since Omarchy themes sometimes drive an existing colorscheme engine with a remapped palette rather than shipping their own plugin.
+**Every theme names the colorscheme plugin it needs, and `omarchy/all-themes.lua` must already list it.** Omarchy themes are not self-contained: `solitude` asks for `ficcdaf/ashen.nvim`, `nord` for `EdenEast/nightfox.nvim`. `all-themes.lua` is the only thing that installs those, so a theme whose plugin is absent cannot be applied at all — the switch fails with `E185` and the previous colors stay on screen. An Omarchy upgrade that adds themes drifts the two sets apart silently, so re-audit after one:
+
+```bash
+for f in /usr/share/omarchy/themes/*/neovim.lua; do
+  grep -oE '"[^"]+/[^"]+"' "$f" | grep -v LazyVim | head -1
+done | sort -u   # every plugin here must appear in all-themes.lua
+```
+
+Beware near-misses: the list once carried `sainnhe/everforest` and `shaunsingh/nord.nvim` while those themes actually wanted `neanias/everforest-nvim` and `EdenEast/nightfox.nvim`. A plausible-looking entry is not proof the theme works.
+
+`omarchy/auto-theme.lua` applies the theme on `VimEnter`/`ColorScheme`, re-applies transparency (`omarchy/transparency.lua`) and the alpha-nvim dashboard colors, and exposes `:OmarchyReloadTheme`. When no colorscheme in the spec applies, it warns with the theme name and the missing plugin — **do not make that path silent again**; it hid this exact bug behind an unchanged-looking editor. It reads the symlinked module as a lazy.nvim-style spec list and calls `spec.opts.colorscheme` — which may be a string *or* a function, since Omarchy themes sometimes drive an existing colorscheme engine with a remapped palette rather than shipping their own plugin.
 
 Live theme switching is **pushed in from outside**, not detected from inside. `hooks/reload-neovim` is installed as an Omarchy `theme-set` hook and calls `:OmarchyReloadTheme` over each running instance's RPC socket:
 

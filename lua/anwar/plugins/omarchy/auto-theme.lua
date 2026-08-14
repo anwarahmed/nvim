@@ -52,19 +52,20 @@ local function ensure_in_runtimepath(plugin_dir)
   vim.opt.runtimepath:prepend(expanded)
 end
 
--- Apply a colorscheme (function or string)
-local function apply_colorscheme(colorscheme, silent)
+-- Apply a colorscheme (function or string). Returns whether it took.
+local function apply_colorscheme(colorscheme)
   if type(colorscheme) == "function" then
-    local ok, err = pcall(colorscheme)
-    if not silent and not ok then
-      vim.notify("Failed to apply custom colorscheme: " .. tostring(err), vim.log.levels.ERROR)
-    end
+    return (pcall(colorscheme))
   elseif type(colorscheme) == "string" then
-    local ok, err = pcall(vim.cmd.colorscheme, colorscheme)
-    if not silent and not ok then
-      vim.notify("Failed to apply colorscheme '" .. colorscheme .. "': " .. tostring(err), vim.log.levels.ERROR)
-    end
+    return (pcall(vim.cmd.colorscheme, colorscheme))
   end
+  return false
+end
+
+-- Name of the theme Omarchy currently has selected, for error messages.
+local function current_theme_name()
+  local ok, lines = pcall(vim.fn.readfile, vim.fn.expand("~/.local/state/omarchy/current/theme.name"))
+  return (ok and lines[1]) or "unknown"
 end
 
 -- Main theme application function
@@ -83,13 +84,21 @@ local function apply_theme()
   local eventignore_old = vim.o.eventignore
   vim.o.eventignore = "all"
 
-  -- Apply colorscheme
+  -- Apply colorscheme. An Omarchy theme names the colorscheme plugin it needs;
+  -- if that plugin is not in all-themes.lua it was never installed, and the
+  -- apply fails with E185. Track that so it surfaces instead of leaving the
+  -- previous theme on screen with no explanation.
+  local applied, wanted, plugin = false, nil, nil
   for _, spec in ipairs(theme_config) do
     if spec.dir then
       ensure_in_runtimepath(spec.dir)
     end
+    if type(spec[1]) == "string" and spec[1] ~= "LazyVim/LazyVim" then
+      plugin = spec[1]
+    end
     if spec.opts and spec.opts.colorscheme then
-      apply_colorscheme(spec.opts.colorscheme, true)
+      wanted = spec.opts.colorscheme
+      applied = apply_colorscheme(spec.opts.colorscheme) or applied
     end
   end
 
@@ -100,6 +109,14 @@ local function apply_theme()
   -- Re-enable events and redraw
   vim.o.eventignore = eventignore_old
   vim.cmd('redraw')
+
+  if wanted and not applied then
+    vim.notify(
+      ("[Omarchy] Theme '%s' needs the colorscheme %s, which is not installed.\nAdd %s to lua/anwar/plugins/omarchy/all-themes.lua, then restart Neovim.")
+        :format(current_theme_name(), type(wanted) == "string" and ("'" .. wanted .. "'") or "<function>", plugin or "its plugin"),
+      vim.log.levels.WARN
+    )
+  end
 end
 
 -- Apply theme when a colorscheme loads
