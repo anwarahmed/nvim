@@ -15,7 +15,7 @@ The following files can be ignored:
 - `README.md`
 - `.git`
 - `.gitignore`
-- `CLAUDE.md` and `.claude/` (notes and settings for AI coding agents)
+- `CLAUDE.md` (notes for AI coding agents)
 
 ## macOS Homebrew
 

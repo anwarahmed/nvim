@@ -22,7 +22,27 @@ Also correct any comment elsewhere in the repo that your change made untrue (e.g
 
 If a change makes an instruction here wrong and you cannot fix it properly, say so explicitly in your final report rather than leaving it silently stale.
 
-A `Stop` hook in `.claude/settings.json` backs this up: if `lua/` or `hooks/` is dirty while `CLAUDE.md` is untouched, it prints a reminder when the turn ends. It is a nudge, not a gate — a change that genuinely invalidates nothing here needs no edit, so judge rather than editing to silence it. It resolves its path via `$CLAUDE_PROJECT_DIR` and exits quietly if that is missing; the file is committed to a public repo, so keep hardcoded home directories out of it.
+A `Stop` hook can back this up: if `lua/` or `hooks/` is dirty while `CLAUDE.md` is untouched, it prints a reminder when the turn ends. It is a nudge, not a gate — a change that genuinely invalidates nothing here needs no edit, so judge rather than editing to silence it.
+
+`.claude/` is **gitignored**, so that hook does not travel with the repo: the rule above is the contract, and the hook is a local convenience each machine sets up for itself. To add it, put this in `.claude/settings.json` (it resolves the repo via `$CLAUDE_PROJECT_DIR` and exits quietly if that is missing, so keep hardcoded home directories out of it):
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"${CLAUDE_PROJECT_DIR:-.}\" 2>/dev/null || exit 0; git status --porcelain -- lua hooks | grep -q . && ! git status --porcelain -- CLAUDE.md | grep -q . && printf '%s' '{\"systemMessage\":\"Reminder: lua/ or hooks/ changed but CLAUDE.md did not. Re-read its Keeping this file current section and update whatever this change invalidated.\"}' || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
 ## What this is
 

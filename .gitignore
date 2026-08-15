@@ -45,5 +45,5 @@ luac.out
 # Lazy lock
 lazy-lock.json
 
-# Claude
-.claude/settings.local.json
+# Claude -- agent settings stay machine-local; CLAUDE.md is the shared part
+.claude/
