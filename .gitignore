@@ -45,5 +45,10 @@ luac.out
 # Lazy lock
 lazy-lock.json
 
-# Claude -- agent settings stay machine-local; CLAUDE.md is the shared part
-.claude/
+# Claude -- allowlist. Everything the agent drops in .claude/ is machine-local
+# (settings.local.json, caches, transcripts) except the shared Stop hook, so
+# ignore the directory's contents and un-ignore that one file by name.
+# Must be `.claude/*`, not `.claude/`: a trailing slash excludes the directory
+# itself and git never looks inside, which makes the negation below dead.
+.claude/*
+!.claude/settings.json
