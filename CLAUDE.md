@@ -17,6 +17,7 @@ Update it in the *same* commit as the code change. Specifically:
 | how a change gets verified, or added a real linter/test runner | **Verifying changes** |
 | formatter/linter/leader/branch conventions | **Conventions** |
 | wired up, deleted, or committed anything under **Loose ends** | that entry — delete it once resolved |
+| `.claude/settings.json` — an agent hook or setting | keep it portable (see below); it is committed, so it runs on macOS too |
 
 Also correct any comment elsewhere in the repo that your change made untrue (e.g. `omarchy-loader.lua`'s header describes what `auto-theme.lua` sets up). Grep for the thing you removed before you finish.
 
@@ -25,6 +26,14 @@ If a change makes an instruction here wrong and you cannot fix it properly, say 
 A `Stop` hook in `.claude/settings.json` backs this up: if `lua/` or `hooks/` is dirty while `CLAUDE.md` is untouched, it prints a reminder when the turn ends. It is a nudge, not a gate — a change that genuinely invalidates nothing here needs no edit, so judge rather than editing to silence it. It resolves its path via `$CLAUDE_PROJECT_DIR` and exits quietly if that is missing; the file is committed to a public repo, so keep hardcoded home directories out of it.
 
 `.gitignore` treats `.claude/` as an **allowlist** — `.claude/*` ignored, `settings.json` un-ignored by name — so that hook travels to every machine while local state (`settings.local.json`, caches, transcripts) stays out. Anything else worth sharing from that directory needs its own `!` line; without one it is silently untracked.
+
+**`settings.json` is shared by every machine, so treat it like the Lua config: it must run on macOS as well as Omarchy.** Commands there are POSIX shell over `git` — nothing Omarchy-only, no `omarchy` binary, no Linux-only paths, no GNU-only flags (`grep -q`, `printf '%s'` are fine; `sed -i` without a backup suffix and `grep -P` are not). This particular hook is platform-agnostic on purpose: it is about documentation discipline, which applies wherever the repo is edited, and editing `lua/` on a Mac invalidates **Platform detection** and **How specs are discovered** exactly as it does here. If a future hook genuinely only makes sense on one platform, gate it on the same precondition `is_omarchy()` uses and exit 0 quietly elsewhere — a hook that errors on a Mac is worse than no hook:
+
+```sh
+[ -e "$HOME/.local/state/omarchy/current/theme" ] || exit 0
+```
+
+That is the opposite of `hooks/reload-neovim`, which *is* Omarchy-only — it is installed into Omarchy's own hook directory and never runs on a Mac at all.
 
 ## What this is
 
